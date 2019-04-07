@@ -1,0 +1,45 @@
+{
+  "name": "react-hooksack",
+  "version": "1.0.0",
+  "description": "A lightweight store for react based entirely on react's hooks.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "lint": "tslint -p tsconfig.json",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pabra/react-hooksack.git"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "store",
+    "lightweight",
+    "typescript"
+  ],
+  "author": "Patrick Braune <pabra@netzfruech.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pabra/react-hooksack/issues"
+  },
+  "homepage": "https://github.com/pabra/react-hooksack#readme",
+  "devDependencies": {
+    "@types/react": "^16.8.0",
+    "prettier": "^1.16.4",
+    "react": "^16.8.0",
+    "tslint": "^5.15.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.2"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0"
+  }
+}
