@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useState } from 'react';
 
-export function makeStore<T>(initialState: T) {
+export default function makeStore<T>(initialState: T) {
     // create the store in private
     const store: {
         setters: Array<Dispatch<T>>;
