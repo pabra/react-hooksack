@@ -1,7 +1,7 @@
 {
   "name": "react-hooksack",
   "version": "1.1.0",
-  "description": "A lightweight store for react based entirely on react's hooks.",
+  "description": "A lightweight, fully typed store for react, based entirely on hooks.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": ["lib/**/*"],

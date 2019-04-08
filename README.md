@@ -54,9 +54,20 @@ function App() {
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
+
 Tests
 -----
 
 ```bash
 npm run test
 ```
+
+
+Why
+---
+
+I got inspired by [a bog post of Jhonny Michel](https://blog.usejournal.com/global-state-management-with-react-hooks-5e453468c5bf).
+He also released [react-hookstore](https://github.com/jhonnymichel/react-hookstore) but I:
+ * don't like to register a new store with a string passed
+ * prefer functions over classes
+ * like Typescript / type support
