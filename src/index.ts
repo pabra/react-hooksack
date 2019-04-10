@@ -19,15 +19,13 @@ export default function makeStore<T>(initialState: T) {
     return (): [T, (state: T) => void] => {
         const [state, setter] = useState(store.state);
 
-        // keep track of new setters
-        if (!store.setters.includes(setter)) {
-            store.setters.push(setter);
-        }
-
         useEffect(() => {
-            // nothing to do on mount
+            // keep track of new setters when component did mount
+            if (!store.setters.includes(setter)) {
+                store.setters.push(setter);
+            }
 
-            // returned function will run on unmount
+            // returned function will run when component will unmount
             return () => {
                 // remove setter from store
                 const setterIdx = store.setters.indexOf(setter);
