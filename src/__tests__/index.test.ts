@@ -24,6 +24,7 @@ test('should work with multiple components', () => {
     // two components using the same store
     const { result: result1 } = renderHook(() => useTestStore2());
     const { result: result2 } = renderHook(() => useTestStore2());
+    const computeNewState = (oldState: number) => oldState + 1;
 
     // initially, booth get a state of 0
     expect(result1.current[0]).toBe(0);
@@ -36,8 +37,8 @@ test('should work with multiple components', () => {
     expect(result1.current[0]).toBe(1);
     expect(result2.current[0]).toBe(1);
 
-    // now component 2 sets new state
-    act(() => result2.current[1](result2.current[0] + 1));
+    // now component 2 sets new state by passing a function
+    act(() => result2.current[1](computeNewState));
 
     // booth components should now get 2
     expect(result1.current[0]).toBe(2);

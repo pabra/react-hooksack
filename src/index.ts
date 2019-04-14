@@ -1,6 +1,8 @@
 import { Dispatch, useEffect, useState } from 'react';
 
 export default function makeStore<T>(initialState: T) {
+    type TNewStateFn = (oldState: T) => T;
+
     // create the store in private
     const store: {
         setters: Array<Dispatch<T>>;
@@ -11,12 +13,16 @@ export default function makeStore<T>(initialState: T) {
     };
 
     // set new state and notify all setters about it
-    const setState = (state: T) => {
-        store.state = state;
+    const setState = (newState: T | TNewStateFn) => {
+        if (newState instanceof Function) {
+            store.state = newState(store.state);
+        } else {
+            store.state = newState;
+        }
         store.setters.forEach(setter => setter(store.state));
     };
 
-    return (): [T, (state: T) => void] => {
+    return (): [T, (state: T | TNewStateFn) => void] => {
         const [state, setter] = useState(store.state);
 
         useEffect(() => {
