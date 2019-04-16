@@ -42,7 +42,7 @@ function ClickButton() {
   return <button onClick={() => setClicks(clicks + 1)}>add click</button>;
 }
 
-// new state can also be set by passing a function - that function get's od state
+// new state can also be set by passing a function - that function get's old state
 // as arg and must return the new state
 function ClickButton() {
   const [clicks, setClicks] = useClickStore();
