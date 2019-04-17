@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useState } from 'react';
 
-export default function makeStore<T>(initialState: T) {
+export default function makeStore<T>(initialState: T & Exclude<T, (...args: any[]) => any>) {
     type TNewStateFn = (oldState: T) => T;
 
     // create the store in private
