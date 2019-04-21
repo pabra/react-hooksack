@@ -1,21 +1,16 @@
 [![Edit q7rp59klxw](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/q7rp59klxw)
 
-React HookSack
-==============
+# React HookSack
 
 A lightweight, fully typed store for react, based entirely on hooks.
 
-
-Install
--------
+## Install
 
 ```bash
 npm install --save react-hooksack
 ```
 
-
-Usage
------
+## Usage
 
 ```tsx
 import React from "react";
@@ -65,14 +60,12 @@ function App() {
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-
-Uage with reducer
------------------
+## Uage with reducer
 
 ```tsx
-import React, { useRef, FunctionComponent } from "react";
-import ReactDOM from "react-dom";
-import makeStore from "react-hooksack";
+import React, { useRef, FunctionComponent } from 'react';
+import ReactDOM from 'react-dom';
+import makeStore from 'react-hooksack';
 
 // shape a ToDo
 interface ITodo {
@@ -83,16 +76,16 @@ interface ITodo {
 // define the ToDo store reducer
 const reducer = (
   state: ITodo[],
-  action: { type: "add" | "del" | "toggle"; todo: ITodo },
+  action: { type: 'add' | 'del' | 'toggle'; todo: ITodo },
 ) => {
   switch (action.type) {
-    case "add":
+    case 'add':
       const newAddState = state.slice();
       newAddState.push(action.todo);
       return newAddState;
-    case "del":
+    case 'del':
       return state.filter(todo => todo !== action.todo);
-    case "toggle":
+    case 'toggle':
       const newToggleState = state.slice();
       newToggleState.forEach(todo => {
         if (todo === action.todo) {
@@ -108,9 +101,9 @@ const reducer = (
 // make a new store, set it's initial value and pass reducer
 const useTodoStore = makeStore(
   [
-    { name: "remember the milk", done: false },
-    { name: "feed the cat", done: false },
-    { name: "walk the dog", done: true },
+    { name: 'remember the milk', done: false },
+    { name: 'feed the cat', done: false },
+    { name: 'walk the dog', done: true },
     { name: "order a table at Luigi's", done: true },
   ] as ITodo[],
   reducer,
@@ -124,10 +117,10 @@ interface ITodoProps {
 const Todo: FunctionComponent<ITodoProps> = props => {
   const [, setTodos] = useTodoStore();
   const style = {
-    textDecoration: props.todo.done ? "line-through" : null,
+    textDecoration: props.todo.done ? 'line-through' : null,
   };
   const handleChange = () => {
-    setTodos({ type: "toggle", todo: props.todo });
+    setTodos({ type: 'toggle', todo: props.todo });
   };
 
   return (
@@ -187,8 +180,8 @@ function AddTodo() {
   const todoInput = useRef(null);
   const addTodo = () => {
     const name = todoInput.current.value;
-    setTodos({ type: "add", todo: { name, done: false } });
-    todoInput.current.value = "";
+    setTodos({ type: 'add', todo: { name, done: false } });
+    todoInput.current.value = '';
   };
 
   return (
@@ -208,24 +201,20 @@ function App() {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-
-
-Tests
------
+## Tests
 
 ```bash
 npm run test
 ```
 
-
-Why
----
+## Why
 
 I got inspired by [a bog post of Jhonny Michel](https://blog.usejournal.com/global-state-management-with-react-hooks-5e453468c5bf).
 He also released [react-hookstore](https://github.com/jhonnymichel/react-hookstore) but I:
- * don't like to register a new store with a string passed
- * prefer functions over classes
- * like Typescript / type support
+
+- don't like to register a new store with a string passed
+- prefer functions over classes
+- like Typescript / type support
