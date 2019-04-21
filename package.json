@@ -4,7 +4,9 @@
   "description": "A lightweight, fully typed store for react, based entirely on hooks.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": ["lib/**/*"],
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc",
@@ -34,16 +36,16 @@
   "homepage": "https://github.com/pabra/react-hooksack#readme",
   "devDependencies": {
     "@types/jest": "^24.0.11",
-    "@types/react": "^16.8.0",
+    "@types/react": "^16.8.14",
     "jest": "^24.7.1",
-    "prettier": "^1.16.4",
+    "prettier": "^1.17.0",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
-    "react-hooks-testing-library": "^0.4.0",
+    "react-hooks-testing-library": "^0.4.1",
     "ts-jest": "^24.0.2",
-    "tslint": "^5.15.0",
+    "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.4.2"
+    "typescript": "^3.4.4"
   },
   "peerDependencies": {
     "react": "^16.8.0",
