@@ -1,5 +1,3 @@
-[![Edit q7rp59klxw](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/q7rp59klxw)
-
 # React HookSack
 
 A lightweight, fully typed store for react, based entirely on hooks.
@@ -12,10 +10,14 @@ npm install --save react-hooksack
 
 ## Usage
 
+### simple usage
+
+[![Edit 487k2wzpq4](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/487k2wzpq4)
+
 ```tsx
-import React from "react";
-import ReactDOM from "react-dom";
-import makeStore from "react-hooksack";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import makeStore from 'react-hooksack';
 
 // make a new store and set it's initial value
 const useClickStore = makeStore(0);
@@ -37,30 +39,73 @@ function ClickButton() {
   return <button onClick={() => setClicks(clicks + 1)}>add click</button>;
 }
 
-// new state can also be set by passing a function - that function get's old state
-// as arg and must return the new state
-function ClickButton() {
-  const [clicks, setClicks] = useClickStore();
-  const computeNewClicks(oldClicks) => {
-    /* complicated computation */
-    return oldClicks + 1;
-  };
-  return <button onClick={() => setClicks(computeNewClicks)}>add click</button>;
-}
-
 function App() {
   return (
-    <>
+    <div>
+      <ClickView />
       <ClickView />
       <ClickButton />
-    </>
+      <ClickButton />
+    </div>
   );
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-## Uage with reducer
+### use with state setting function
+
+[![Edit 3850mwqzqq](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3850mwqzqq)
+
+```tsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+import makeStore from 'react-hooksack';
+
+// make a new store and set it's initial value
+const useClickStore = makeStore(0);
+
+// a simple component to view the store's state
+function ClickView() {
+  // as React's useState hook, our store also returns an Array of [state, setter]
+  const [clicks] = useClickStore();
+  return (
+    <div>
+      <span>clicks: {clicks}</span>
+    </div>
+  );
+}
+
+function computeClick(clicks: number) {
+  // heavy computation here
+  const newClicks = clicks + 1;
+
+  return newClicks;
+}
+
+// another component to set a new state
+function ClickButton() {
+  const [, setClicks] = useClickStore();
+  return <button onClick={() => setClicks(computeClick)}>add click</button>;
+}
+
+function App() {
+  return (
+    <div>
+      <ClickView />
+      <ClickView />
+      <ClickButton />
+      <ClickButton />
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+```
+
+### use with reducer
+
+[![Edit rmj4vyyn04](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/rmj4vyyn04)
 
 ```tsx
 import React, { useRef, FunctionComponent } from 'react';
@@ -117,7 +162,7 @@ interface ITodoProps {
 const Todo: FunctionComponent<ITodoProps> = props => {
   const [, setTodos] = useTodoStore();
   const style = {
-    textDecoration: props.todo.done ? 'line-through' : null,
+    textDecoration: props.todo.done ? 'line-through' : undefined,
   };
   const handleChange = () => {
     setTodos({ type: 'toggle', todo: props.todo });
@@ -177,11 +222,13 @@ function AllTodos() {
 // component to add a new, undone todo
 function AddTodo() {
   const [, setTodos] = useTodoStore();
-  const todoInput = useRef(null);
+  const todoInput = useRef<HTMLInputElement>(null);
   const addTodo = () => {
-    const name = todoInput.current.value;
-    setTodos({ type: 'add', todo: { name, done: false } });
-    todoInput.current.value = '';
+    if (todoInput && todoInput.current) {
+      const name = todoInput.current.value;
+      setTodos({ type: 'add', todo: { name, done: false } });
+      todoInput.current.value = '';
+    }
   };
 
   return (
