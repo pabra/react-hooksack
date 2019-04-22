@@ -1,9 +1,9 @@
 {
-  "name": "new",
+  "name": "react-hooksack-demo",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
-  "main": "src/index.tsx",
+  "main": "./index.tsx",
   "dependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

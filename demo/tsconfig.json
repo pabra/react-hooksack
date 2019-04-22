@@ -1,5 +1,6 @@
 {
   "include": ["./demo/*"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "lib": ["dom", "es2015"],
     "jsx": "react"
