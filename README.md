@@ -1,3 +1,6 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/5ae9adad86505c3da9bc/maintainability)](https://codeclimate.com/github/pabra/react-hooksack/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/5ae9adad86505c3da9bc/test_coverage)](https://codeclimate.com/github/pabra/react-hooksack/test_coverage)
+
 # React HookSack
 
 A lightweight, fully typed store for react, based entirely on hooks.
