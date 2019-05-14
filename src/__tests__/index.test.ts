@@ -143,3 +143,41 @@ test('should work with payload passed to reducer', () => {
 
   unmount();
 });
+
+test('state setter should be the same after usage', () => {
+  const useStore = makeStore(0);
+  const { result, unmount } = renderHook(() => useStore());
+
+  const setterBefore = result.current[1];
+
+  act(() => result.current[1](result.current[0] + 1));
+
+  const setterAfter = result.current[1];
+
+  expect(setterBefore).toBe(setterAfter);
+
+  unmount();
+});
+
+test('state setter should be the same in every component', () => {
+  const useStore = makeStore(0);
+
+  // two components using the same store
+  const { result: result1, unmount: unmount1 } = renderHook(() => useStore());
+  const { result: result2, unmount: unmount2 } = renderHook(() => useStore());
+
+  const computeNewState = (oldState: number) => oldState + 1;
+
+  expect(result1.current[1]).toBe(result2.current[1]);
+
+  // component 1 sets new state
+  act(() => result1.current[1](result1.current[0] + 1));
+
+  // now component 2 sets new state by passing a function
+  act(() => result2.current[1](computeNewState));
+
+  expect(result1.current[1]).toBe(result2.current[1]);
+
+  unmount1();
+  unmount2();
+});
