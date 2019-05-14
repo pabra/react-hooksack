@@ -44,7 +44,7 @@ export default function makeStore<
       } else if (arg instanceof Function) {
         // state setting function
         newState = arg(store.state);
-      } else if (!(arg instanceof Function)) {
+      } else {
         // new state passed
         newState = arg;
       }

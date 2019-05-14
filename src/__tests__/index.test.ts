@@ -1,11 +1,9 @@
-import { act, cleanup, renderHook } from 'react-hooks-testing-library';
+import { act, renderHook } from 'react-hooks-testing-library';
 import makeStore from '../index';
-
-afterEach(cleanup);
 
 test('should increment counter', () => {
   const useStore = makeStore(0);
-  const { result } = renderHook(() => useStore());
+  const { result, unmount } = renderHook(() => useStore());
   // result.current is the return value of useTestStore1().
   // So result.current[0] is the returned state where
   // result.current[1] is the corresponding setter.
@@ -19,14 +17,16 @@ test('should increment counter', () => {
   //
   // // should fail because of types
   // act(() => result.current[1]('one'));
+
+  unmount();
 });
 
 test('should work with multiple components', () => {
   const useStore = makeStore(0);
 
   // two components using the same store
-  const { result: result1 } = renderHook(() => useStore());
-  const { result: result2 } = renderHook(() => useStore());
+  const { result: result1, unmount: unmount1 } = renderHook(() => useStore());
+  const { result: result2, unmount: unmount2 } = renderHook(() => useStore());
   const computeNewState = (oldState: number) => oldState + 1;
 
   // initially, booth get a state of 0
@@ -52,6 +52,9 @@ test('should work with multiple components', () => {
   // act(() => result1.current[1]('one'));
   // act(() => result1.current[1]((arg: string) => 5));
   // act(() => result1.current[1]((arg: string) => '5'));
+
+  unmount1();
+  unmount2();
 });
 
 test('should work with reducer', () => {
@@ -67,7 +70,7 @@ test('should work with reducer', () => {
   };
 
   const useStore = makeStore(0, reducer);
-  const { result } = renderHook(() => useStore());
+  const { result, unmount } = renderHook(() => useStore());
 
   expect(result.current[0]).toBe(0);
 
@@ -83,6 +86,8 @@ test('should work with reducer', () => {
   // // should fail because of types
   // act(() => result.current[1]('increment'));
   // act(() => result.current[1](5));
+
+  unmount();
 });
 
 test('should work with payload passed to reducer', () => {
@@ -108,7 +113,7 @@ test('should work with payload passed to reducer', () => {
   };
 
   const useStore = makeStore([] as ITodo[], reducer);
-  const { result } = renderHook(() => useStore());
+  const { result, unmount } = renderHook(() => useStore());
   const todo1: ITodo = { name: 'first todo', done: false };
   const todo2: ITodo = { name: 'second todo', done: true };
 
@@ -135,4 +140,6 @@ test('should work with payload passed to reducer', () => {
   // // should fail because of types
   // act(() => result.current[1]('increment'));
   // act(() => result.current[1](5));
+
+  unmount();
 });
