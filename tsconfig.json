@@ -5,6 +5,13 @@
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true

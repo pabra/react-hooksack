@@ -31,27 +31,27 @@ export default function makeStore<
     state: initialState,
   };
 
+  // set new state and notify all setters about it
+  const setState = (arg: TSetStateArg) => {
+    let newState;
+
+    if (reducer instanceof Function) {
+      // reducer
+      newState = reducer(store.state, arg);
+    } else if (arg instanceof Function) {
+      // state setting function
+      newState = arg(store.state);
+    } else {
+      // new state passed
+      newState = arg;
+    }
+
+    store.state = newState;
+    store.setters.forEach((s: Dispatch<TState>) => s(store.state));
+  };
+
   return (): [TState, (arg: TSetStateArg) => void] => {
     const [state, setter] = useState(store.state);
-
-    // set new state and notify all setters about it
-    const setState = (arg: TSetStateArg) => {
-      let newState;
-
-      if (reducer instanceof Function) {
-        // reducer
-        newState = reducer(store.state, arg);
-      } else if (arg instanceof Function) {
-        // state setting function
-        newState = arg(store.state);
-      } else {
-        // new state passed
-        newState = arg;
-      }
-
-      store.state = newState;
-      store.setters.forEach((s: Dispatch<TState>) => s(store.state));
-    };
 
     useEffect(() => {
       // keep track of new setters when component did mount
@@ -65,7 +65,7 @@ export default function makeStore<
         const setterIdx = store.setters.indexOf(setter);
         store.setters.splice(setterIdx, 1);
       };
-    }, []); // empty Array -> only run effect on mount and unmount
+    }, [store, store.setters, setter]); // variables that could cause a rerender
 
     return [state, setState];
   };

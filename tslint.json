@@ -1,3 +1,18 @@
 {
-  "extends": ["tslint:recommended", "tslint-config-prettier"]
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:latest",
+    "tslint:recommended",
+    "tslint-react",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": ["node_modules/**", "package.json"]
+  },
+  "rules": {
+    "quotemark": [true, "single", "jsx-double"],
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "no-implicit-dependencies": [true, "dev"]
+  }
 }
