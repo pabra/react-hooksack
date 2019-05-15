@@ -55,7 +55,7 @@ export default function makeStore<
 
     useEffect(() => {
       // keep track of new setters when component did mount
-      if (!store.setters.includes(setter)) {
+      if (store.setters.indexOf(setter) === -1) {
         store.setters.push(setter);
       }
 

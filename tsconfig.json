@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
+    "target": "ES2015",
     "module": "CommonJS",
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "noEmit": true,
+    "noEmitOnError": true,
+    "removeComments": true,
     "jsx": "preserve",
     "noUnusedParameters": true,
     "noUnusedLocals": true,
