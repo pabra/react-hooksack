@@ -3,6 +3,13 @@ import makeStore from '../index';
 
 test('should increment counter', () => {
   const useStore = makeStore(0);
+
+  //
+  // // should fail because of types (be aware that __tests__ dir is excluded in tsconfig)
+  // const useStore2 = makeStore();
+  // const useStore3 = makeStore(null);
+  // const useStore4 = makeStore(undefined);
+
   const { result, unmount } = renderHook(() => useStore());
   // result.current is the return value of useTestStore1().
   // So result.current[0] is the returned state where

@@ -1,10 +1,8 @@
 import { Dispatch, useEffect, useState } from 'react';
 
-export default function makeStore<
-  TState,
-  TReducer = <TA>(state: TState, action: TA) => TState
->(
-  initialState: TState & Exclude<TState, (...args: any) => any>,
+export default function makeStore<TState, TReducer = undefined>(
+  initialState: TState &
+    Exclude<TState, null | undefined | ((...args: any) => any)>,
   reducer?: TReducer,
 ) {
   // type of state setting function
@@ -15,10 +13,13 @@ export default function makeStore<
     ? TA
     : never;
 
-  // type that the setState function expects as arg
-  // if reducer is not passed to makeStore, TAction extends never so arg must be
-  // new state or state setting function otherwise TAction is expected arg.
-  type TSetStateArg = TReducer extends <TA>(state: TState, action: TA) => TState
+  // type that the setState function expects as argument
+  // If reducer is not passed to makeStore, it is undefined and so TState or
+  // TNewStateFn is the expected argument for setState.
+  // If reducer is passed (not undefined), TAction is the expected argument for
+  // setSate. TAction will be never if the reducer is not of expected type. So
+  // setState won't be usable.
+  type TSetStateArg = TReducer extends undefined
     ? (TState | TNewStateFn)
     : TAction;
 
@@ -32,7 +33,7 @@ export default function makeStore<
   };
 
   // set new state and notify all setters about it
-  const setState = (arg: TSetStateArg) => {
+  const setState = (arg: TSetStateArg): void => {
     let newState;
 
     if (reducer instanceof Function) {
@@ -50,8 +51,8 @@ export default function makeStore<
     store.setters.forEach((s: Dispatch<TState>) => s(store.state));
   };
 
-  return (): [TState, (arg: TSetStateArg) => void] => {
     const [state, setter] = useState(store.state);
+  return (): [TState, typeof setState] => {
 
     useEffect(() => {
       // keep track of new setters when component did mount
