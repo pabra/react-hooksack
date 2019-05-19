@@ -23,14 +23,9 @@ export default function makeStore<TState, TReducer = undefined>(
     ? (TState | TNewStateFn)
     : TAction;
 
-  // create the store in private
-  const store: {
-    setters: Array<Dispatch<TState>>;
-    state: TState;
-  } = {
-    setters: [], // keep references to all setters
-    state: initialState,
-  };
+  // keep references to all setters
+  const setters: Array<Dispatch<TState>> = [];
+  let storeState: TState = initialState;
 
   // set new state and notify all setters about it
   const setState = (arg: TSetStateArg): void => {
@@ -38,35 +33,35 @@ export default function makeStore<TState, TReducer = undefined>(
 
     if (reducer instanceof Function) {
       // reducer
-      newState = reducer(store.state, arg);
+      newState = reducer(storeState, arg);
     } else if (arg instanceof Function) {
       // state setting function
-      newState = arg(store.state);
+      newState = arg(storeState);
     } else {
       // new state passed
       newState = arg;
     }
 
-    store.state = newState;
-    store.setters.forEach((s: Dispatch<TState>) => s(store.state));
+    storeState = newState;
+    setters.forEach((s: Dispatch<TState>) => s(storeState));
   };
 
-    const [state, setter] = useState(store.state);
   return (): [TState, typeof setState] => {
+    const [state, setter] = useState(storeState);
 
     useEffect(() => {
       // keep track of new setters when component did mount
-      if (store.setters.indexOf(setter) === -1) {
-        store.setters.push(setter);
+      if (setters.indexOf(setter) === -1) {
+        setters.push(setter);
       }
 
       // returned function will run when component will unmount
       return () => {
         // remove setter from store
-        const setterIdx = store.setters.indexOf(setter);
-        store.setters.splice(setterIdx, 1);
+        const setterIdx = setters.indexOf(setter);
+        setters.splice(setterIdx, 1);
       };
-    }, [store, store.setters, setter]); // variables that could cause a rerender
+    }, [setters, setter]); // variables that could cause a rerender
 
     return [state, setState];
   };
