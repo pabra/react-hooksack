@@ -98,31 +98,33 @@ test('should work with reducer', () => {
 });
 
 test('should work with payload passed to reducer', () => {
-  interface ITodo {
+  interface Todo {
     name: string;
     done: boolean;
   }
 
   const reducer = (
-    state: ITodo[],
-    action: { type: 'add' | 'del'; todo: ITodo },
+    state: Todo[],
+    action: { type: 'add' | 'del'; todo: Todo },
   ) => {
+    const newState = state.slice();
     switch (action.type) {
       case 'add':
-        const newState = state.slice();
         newState.push(action.todo);
         return newState;
+
       case 'del':
         return state.filter(todo => todo !== action.todo);
+
       default:
         throw new Error();
     }
   };
 
-  const useStore = makeStore([] as ITodo[], reducer);
+  const useStore = makeStore([] as Todo[], reducer);
   const { result, unmount } = renderHook(() => useStore());
-  const todo1: ITodo = { name: 'first todo', done: false };
-  const todo2: ITodo = { name: 'second todo', done: true };
+  const todo1: Todo = { name: 'first todo', done: false };
+  const todo2: Todo = { name: 'second todo', done: true };
 
   expect(result.current[0]).toHaveLength(0);
 

@@ -24,7 +24,7 @@ export default function makeStore<TState, TReducer = undefined>(
     : TAction;
 
   // keep references to all setters
-  const setters: Array<Dispatch<TState>> = [];
+  const setters: Dispatch<TState>[] = [];
   let storeState: TState = initialState;
 
   // set new state and notify all setters about it
@@ -61,7 +61,7 @@ export default function makeStore<TState, TReducer = undefined>(
         const setterIdx = setters.indexOf(setter);
         setters.splice(setterIdx, 1);
       };
-    }, [setters, setter]); // variables that could cause a rerender
+    }, [setter]); // variables that could cause a rerender
 
     return [state, setState];
   };
