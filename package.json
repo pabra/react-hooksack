@@ -12,7 +12,7 @@
     "pretest:coverage_publish": "[ ! -x cc-test-reporter ] && ( curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter && ./cc-test-reporter before-build ) || true",
     "test:coverage": "jest --coverage --config jestconfig.json",
     "test:coverage_publish": "CC_TEST_REPORTER_ID=42e3a64ee207907b6046792e75806574459a65fe54ddcd734ba2bbc1f777700e ./cc-test-reporter after-build -t lcov --debug",
-    "prebuild": "[ -d lib ] && rm -rfv lib/*",
+    "prebuild": "[ -d lib ] && rm -rfv lib/* || true",
     "build": "tsc",
     "lint": "tslint -p tsconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
