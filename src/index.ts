@@ -1,39 +1,35 @@
 import { Dispatch, useEffect, useState } from 'react';
 
-export default function makeStore<TState, TReducer = undefined>(
+export default function makeStore<
+  TState,
+  TReducer,
+  TReducerAction = TReducer extends (state: TState, action: infer T) => TState // ? (T extends undefined ? never : T)
+    ? Exclude<T, undefined>
+    : never
+>(
   initialState: TState &
     Exclude<TState, null | undefined | ((...args: any) => any)>,
-  reducer?: TReducer,
+  reducer?: [TReducerAction] extends [never]
+    ? never
+    : (state: TState, action: TReducerAction) => TState,
 ) {
-  // type of state setting function
   type TNewStateFn = (oldState: TState) => TState;
-
-  // type of action passed to reducer
-  type TAction = TReducer extends (state: TState, action: infer TA) => TState
-    ? TA
-    : never;
-
-  // type that the setState function expects as argument
-  // If reducer is not passed to makeStore, it is undefined and so TState or
-  // TNewStateFn is the expected argument for setState.
-  // If reducer is passed (not undefined), TAction is the expected argument for
-  // setSate. TAction will be never if the reducer is not of expected type. So
-  // setState won't be usable.
-  type TSetStateArg = TReducer extends undefined
-    ? (TState | TNewStateFn)
-    : TAction;
 
   // keep references to all setters
   const setters: Dispatch<TState>[] = [];
   let storeState: TState = initialState;
 
   // set new state and notify all setters about it
-  const setState = (arg: TSetStateArg): void => {
+  const setState = (
+    arg: [TReducerAction] extends [never]
+      ? (TState | TNewStateFn)
+      : TReducerAction,
+  ): void => {
     let newState;
 
     if (reducer instanceof Function) {
       // reducer
-      newState = reducer(storeState, arg);
+      newState = reducer(storeState, arg as TReducerAction);
     } else if (arg instanceof Function) {
       // state setting function
       newState = arg(storeState);

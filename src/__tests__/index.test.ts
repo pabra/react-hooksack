@@ -97,6 +97,36 @@ test('should work with reducer', () => {
   unmount();
 });
 
+test('should work with inline reducer function', () => {
+  const useStore = makeStore(0, (state: number, action: 'inc' | 'dec') =>
+    action === 'inc' ? state + 1 : state - 1,
+  );
+  const { result, unmount } = renderHook(() => useStore());
+
+  expect(result.current[0]).toBe(0);
+
+  act(() => result.current[1]('inc'));
+
+  expect(result.current[0]).toBe(1);
+
+  act(() => result.current[1]('dec'));
+
+  expect(result.current[0]).toBe(0);
+
+  //
+  // // should fail because of types
+  // act(() => result.current[1]('increment'));
+  // act(() => result.current[1](5));
+  // makeStore(0, (state: number, action: 'inc' | 'dec') =>
+  //   action === 'inc' ? state + 1 + '' : state - 1,
+  // );
+  // makeStore('0', (state: number, action: 'inc' | 'dec') =>
+  //   action === 'inc' ? state + 1 : state - 1,
+  // );
+
+  unmount();
+});
+
 test('should work with payload passed to reducer', () => {
   interface Todo {
     name: string;
