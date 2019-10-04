@@ -7,8 +7,7 @@ export default function makeStore<
     ? Exclude<T, undefined>
     : never
 >(
-  initialState: TState &
-    Exclude<TState, null | undefined | ((...args: any) => any)>,
+  initialState: TState,
   reducer?: [TReducerAction] extends [never]
     ? never
     : (state: TState, action: TReducerAction) => TState,
