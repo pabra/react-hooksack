@@ -35,6 +35,11 @@ export default function makeStore<
       newState = arg;
     }
 
+    // do not do anything if state did not change
+    if (newState === storeState) {
+      return;
+    }
+
     storeState = newState;
     setters.forEach((s: Dispatch<TState>) => s(storeState));
   };
