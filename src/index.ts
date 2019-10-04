@@ -3,14 +3,12 @@ import { Dispatch, useEffect, useState } from 'react';
 export default function makeStore<
   TState,
   TReducer,
-  TReducerAction = TReducer extends (state: TState, action: infer T) => TState // ? (T extends undefined ? never : T)
-    ? Exclude<T, undefined>
+  TReducerAction = TReducer extends (state: TState, action: infer T) => TState
+    ? T
     : never
 >(
   initialState: TState,
-  reducer?: [TReducerAction] extends [never]
-    ? never
-    : (state: TState, action: TReducerAction) => TState,
+  reducer?: (state: TState, action: TReducerAction) => TState,
 ) {
   type TNewStateFn = (oldState: TState) => TState;
 
