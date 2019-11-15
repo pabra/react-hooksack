@@ -1,32 +1,30 @@
 import { Dispatch, useEffect, useState } from 'react';
 
 export default function makeStore<
-  TState,
-  TReducer,
-  TReducerAction = TReducer extends (state: TState, action: infer T) => TState
+  State,
+  Reducer,
+  ReducerAction = Reducer extends (state: State, action: infer T) => State
     ? T
     : never
 >(
-  initialState: TState,
-  reducer?: (state: TState, action: TReducerAction) => TState,
+  initialState: State,
+  reducer?: (state: State, action: ReducerAction) => State,
 ) {
-  type TNewStateFn = (oldState: TState) => TState;
+  type NewStateFn = (oldState: State) => State;
 
   // keep references to all setters
-  const setters: Dispatch<TState>[] = [];
-  let storeState: TState = initialState;
+  const setters: Dispatch<State>[] = [];
+  let storeState: State = initialState;
 
   // set new state and notify all setters about it
   const setState = (
-    arg: [TReducerAction] extends [never]
-      ? (TState | TNewStateFn)
-      : TReducerAction,
+    arg: [ReducerAction] extends [never] ? State | NewStateFn : ReducerAction,
   ): void => {
     let newState;
 
     if (reducer instanceof Function) {
       // reducer
-      newState = reducer(storeState, arg as TReducerAction);
+      newState = reducer(storeState, arg as ReducerAction);
     } else if (arg instanceof Function) {
       // state setting function
       newState = arg(storeState);
@@ -41,10 +39,10 @@ export default function makeStore<
     }
 
     storeState = newState;
-    setters.forEach((s: Dispatch<TState>) => s(storeState));
+    setters.forEach((s: Dispatch<State>) => s(storeState));
   };
 
-  return (): [TState, typeof setState] => {
+  return (): [State, typeof setState] => {
     const [state, setter] = useState(storeState);
 
     useEffect(() => {
