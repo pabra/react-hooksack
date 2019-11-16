@@ -1,4 +1,5 @@
 import { Dispatch, useEffect, useState } from 'react';
+import { unstable_batchedUpdates as batch } from 'react-dom';
 
 export default function makeStore<
   State,
@@ -39,7 +40,7 @@ export default function makeStore<
     }
 
     storeState = newState;
-    setters.forEach((s: Dispatch<State>) => s(storeState));
+    batch(() => setters.forEach((s: Dispatch<State>) => s(storeState)));
   };
 
   return (): [State, typeof setState] => {

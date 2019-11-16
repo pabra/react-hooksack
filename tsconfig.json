@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
     "removeComments": true,
-    "jsx": "preserve",
+    "jsx": "react",
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true

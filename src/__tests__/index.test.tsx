@@ -1,4 +1,7 @@
+import React, { useEffect } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { render, waitForDomChange, fireEvent } from '@testing-library/react';
+
 import makeStore from '../index';
 
 test('should increment counter', () => {
@@ -217,4 +220,63 @@ test('state setter should be the same in every component', () => {
 
   unmount1();
   unmount2();
+});
+
+test('avoid unnecessary re-rendering', async () => {
+  const useClickStore = makeStore(0);
+  const indicateRender = jest.fn();
+  const indicateEffect = jest.fn();
+
+  const ClickView = ({ recurseCount }: { recurseCount: number }) => {
+    const [clicks] = useClickStore();
+    indicateRender();
+    useEffect(() => {
+      indicateEffect();
+    });
+
+    return (
+      <div>
+        <span>clicks: {clicks}</span>
+        {recurseCount === 0 ? null : (
+          <ClickView recurseCount={recurseCount - 1} />
+        )}
+      </div>
+    );
+  };
+
+  const ClickButton = () => {
+    const [, setClicks] = useClickStore();
+
+    return (
+      <button
+        onClick={() => {
+          setTimeout(() => {
+            setClicks(clicks => clicks + 1);
+          }, 10);
+        }}
+      >
+        add click
+      </button>
+    );
+  };
+
+  const { getByRole, container } = render(
+    <div>
+      <ClickView recurseCount={2} />
+      <ClickButton />
+    </div>,
+  );
+
+  // each element's renderer and effect should have been called once
+  expect(indicateRender).toHaveBeenCalledTimes(3);
+  expect(indicateEffect).toHaveBeenCalledTimes(3);
+
+  fireEvent.click(getByRole('button'));
+
+  await waitForDomChange({ container });
+
+  // after incrementing the clicks, each element's renderer and effectshould
+  // have been call one more time
+  expect(indicateRender).toHaveBeenCalledTimes(6);
+  expect(indicateEffect).toHaveBeenCalledTimes(6);
 });

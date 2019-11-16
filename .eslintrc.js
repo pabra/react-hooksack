@@ -13,6 +13,7 @@ module.exports = {
   ],
   env: {
     'jest/globals': true,
+    browser: true,
   },
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
