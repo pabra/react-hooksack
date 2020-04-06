@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { render, waitForDomChange, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 
 import makeStore from '../index';
 
@@ -273,10 +273,13 @@ test('avoid unnecessary re-rendering', async () => {
 
   fireEvent.click(getByRole('button'));
 
-  await waitForDomChange({ container });
-
-  // after incrementing the clicks, each element's renderer and effectshould
-  // have been call one more time
-  expect(indicateRender).toHaveBeenCalledTimes(6);
-  expect(indicateEffect).toHaveBeenCalledTimes(6);
+  await waitFor(
+    () => {
+      // after incrementing the clicks, each element's renderer and effectshould
+      // have been call one more time
+      expect(indicateRender).toHaveBeenCalledTimes(6);
+      expect(indicateEffect).toHaveBeenCalledTimes(6);
+    },
+    { container },
+  );
 });

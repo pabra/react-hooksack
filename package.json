@@ -15,7 +15,7 @@
     "prebuild": "[ -d lib ] && rm -rfv lib/* || true",
     "build": "tsc",
     "lint": "eslint src/ --ext .js --ext .ts --ext .jsx --ext .tsx",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
