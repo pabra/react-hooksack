@@ -35,7 +35,7 @@ test('should work with multiple components', () => {
   // two components using the same store
   const { result: result1, unmount: unmount1 } = renderHook(() => useStore());
   const { result: result2, unmount: unmount2 } = renderHook(() => useStore());
-  const computeNewState = (oldState: number) => oldState + 1;
+  const computeNewState = (oldState: number): number => oldState + 1;
 
   // initially, booth get a state of 0
   expect(result1.current[0]).toBe(0);
@@ -66,7 +66,7 @@ test('should work with multiple components', () => {
 });
 
 test('should work with reducer', () => {
-  const reducer = (state: number, action: 'inc' | 'dec') => {
+  const reducer = (state: number, action: 'inc' | 'dec'): number => {
     switch (action) {
       case 'inc':
         return state + 1;
@@ -137,7 +137,7 @@ test('should work with payload passed to reducer', () => {
   const reducer = (
     state: Todo[],
     action: { type: 'add' | 'del'; todo: Todo },
-  ) => {
+  ): Todo[] => {
     const newState = state.slice();
     switch (action.type) {
       case 'add':
@@ -206,7 +206,7 @@ test('state setter should be the same in every component', () => {
   const { result: result1, unmount: unmount1 } = renderHook(() => useStore());
   const { result: result2, unmount: unmount2 } = renderHook(() => useStore());
 
-  const computeNewState = (oldState: number) => oldState + 1;
+  const computeNewState = (oldState: number): number => oldState + 1;
 
   expect(result1.current[1]).toBe(result2.current[1]);
 
@@ -224,32 +224,37 @@ test('state setter should be the same in every component', () => {
 
 test('avoid unnecessary re-rendering', async () => {
   const useClickStore = makeStore(0);
-  const indicateRender = jest.fn();
-  const indicateEffect = jest.fn();
+  const indicateViewRender = jest.fn();
+  const indicateViewEffect = jest.fn();
+  const indicateButton1Render = jest.fn();
+  const indicateButton1Effect = jest.fn();
+  const indicateButton2Render = jest.fn();
+  const indicateButton2Effect = jest.fn();
 
-  const ClickView = ({ recurseCount }: { recurseCount: number }) => {
+  const ClickView: React.FC<{ recurseCount: number }> = ({ recurseCount }) => {
     const [clicks] = useClickStore();
-    indicateRender();
-    useEffect(() => {
-      indicateEffect();
-    });
+    indicateViewRender();
+    useEffect(() => indicateViewEffect());
 
     return (
       <div>
         <span>clicks: {clicks}</span>
-        {recurseCount === 0 ? null : (
+        {recurseCount <= 1 ? null : (
           <ClickView recurseCount={recurseCount - 1} />
         )}
       </div>
     );
   };
 
-  const ClickButton = () => {
+  const ClickButtonAdd: React.FC = () => {
     const [, setClicks] = useClickStore();
+    indicateButton1Render();
+    useEffect(() => indicateButton1Effect());
 
     return (
       <button
-        onClick={() => {
+        data-testid="button-that-adds"
+        onClick={(): void => {
           setTimeout(() => {
             setClicks(clicks => clicks + 1);
           }, 10);
@@ -260,26 +265,98 @@ test('avoid unnecessary re-rendering', async () => {
     );
   };
 
-  const { getByRole, container } = render(
+  const ClickButtonReset: React.FC = () => {
+    const [, setClicks] = useClickStore();
+    indicateButton2Render();
+    useEffect(() => indicateButton2Effect());
+
+    return (
+      <button
+        data-testid="button-that-resets"
+        onClick={(): void => {
+          setClicks(0);
+        }}
+      >
+        add click
+      </button>
+    );
+  };
+
+  const timeout = 500;
+  const { container, getByTestId } = render(
     <div>
-      <ClickView recurseCount={2} />
-      <ClickButton />
+      <ClickView recurseCount={3} />
+      <ClickButtonAdd />
+      <ClickButtonReset />
     </div>,
   );
 
   // each element's renderer and effect should have been called once
-  expect(indicateRender).toHaveBeenCalledTimes(3);
-  expect(indicateEffect).toHaveBeenCalledTimes(3);
+  expect(indicateViewRender).toHaveBeenCalledTimes(3);
+  expect(indicateViewEffect).toHaveBeenCalledTimes(3);
+  expect(indicateButton1Render).toHaveBeenCalledTimes(1);
+  expect(indicateButton1Effect).toHaveBeenCalledTimes(1);
+  expect(indicateButton2Render).toHaveBeenCalledTimes(1);
+  expect(indicateButton2Effect).toHaveBeenCalledTimes(1);
 
-  fireEvent.click(getByRole('button'));
+  fireEvent.click(getByTestId('button-that-adds')); // rerender +1
 
   await waitFor(
     () => {
       // after incrementing the clicks, each element's renderer and effectshould
       // have been call one more time
-      expect(indicateRender).toHaveBeenCalledTimes(6);
-      expect(indicateEffect).toHaveBeenCalledTimes(6);
+      expect(indicateViewRender).toHaveBeenCalledTimes(6);
+      expect(indicateViewEffect).toHaveBeenCalledTimes(6);
+      expect(indicateButton1Render).toHaveBeenCalledTimes(2);
+      expect(indicateButton1Effect).toHaveBeenCalledTimes(2);
+      expect(indicateButton2Render).toHaveBeenCalledTimes(2);
+      expect(indicateButton2Effect).toHaveBeenCalledTimes(2);
     },
-    { container },
+    { container, timeout },
+  );
+
+  fireEvent.click(getByTestId('button-that-resets'));
+
+  await waitFor(
+    () => {
+      // reset counter should couse each element to rerender
+      expect(indicateViewRender).toHaveBeenCalledTimes(9);
+      expect(indicateViewEffect).toHaveBeenCalledTimes(9);
+      expect(indicateButton1Render).toHaveBeenCalledTimes(3);
+      expect(indicateButton1Effect).toHaveBeenCalledTimes(3);
+      expect(indicateButton2Render).toHaveBeenCalledTimes(3);
+      expect(indicateButton2Effect).toHaveBeenCalledTimes(3);
+    },
+    { container, timeout },
+  );
+
+  fireEvent.click(getByTestId('button-that-resets'));
+
+  await waitFor(
+    () => {
+      // reset again should not have caused any rerender
+      expect(indicateViewRender).toHaveBeenCalledTimes(9);
+      expect(indicateViewEffect).toHaveBeenCalledTimes(9);
+      expect(indicateButton1Render).toHaveBeenCalledTimes(3);
+      expect(indicateButton1Effect).toHaveBeenCalledTimes(3);
+      expect(indicateButton2Render).toHaveBeenCalledTimes(3);
+      expect(indicateButton2Effect).toHaveBeenCalledTimes(3);
+    },
+    { container, timeout },
+  );
+
+  fireEvent.click(getByTestId('button-that-adds'));
+
+  await waitFor(
+    () => {
+      // adding again should cause rerender
+      expect(indicateViewRender).toHaveBeenCalledTimes(12);
+      expect(indicateViewEffect).toHaveBeenCalledTimes(12);
+      expect(indicateButton1Render).toHaveBeenCalledTimes(4);
+      expect(indicateButton1Effect).toHaveBeenCalledTimes(4);
+      expect(indicateButton2Render).toHaveBeenCalledTimes(4);
+      expect(indicateButton2Effect).toHaveBeenCalledTimes(4);
+    },
+    { container, timeout },
   );
 });
