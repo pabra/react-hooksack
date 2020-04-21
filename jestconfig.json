@@ -1,5 +1,6 @@
 {
   "preset": "ts-jest",
+  "cache": false,
   "transform": {
     "^.+\\.(t|j)sx?$": "ts-jest"
   },
