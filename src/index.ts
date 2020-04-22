@@ -23,12 +23,25 @@ type SetStateWithReducer<State, R extends Reducer<State>> = (
   action: ReducerAction<State, R>,
 ) => void;
 
-type UseStoreWithState<State> = () => [State, SetStateWithState<State>];
+type JustStateOrSetter = 'justState' | 'justSetter' | undefined;
 
-type UseStoreWithReducer<State, R extends Reducer<State>> = () => [
-  State,
-  SetStateWithReducer<State, R>,
-];
+type UseStoreWithState<State> = <J extends JustStateOrSetter = undefined>(
+  just?: J,
+) => J extends 'justState'
+  ? State
+  : J extends 'justSetter'
+  ? SetStateWithState<State>
+  : [State, SetStateWithState<State>];
+
+type UseStoreWithReducer<State, R extends Reducer<State>> = <
+  J extends JustStateOrSetter = undefined
+>(
+  just?: J,
+) => J extends 'justState'
+  ? State
+  : J extends 'justSetter'
+  ? SetStateWithReducer<State, R>
+  : [State, SetStateWithReducer<State, R>];
 
 // first overload if only initial state is passed
 function makeStore<State>(initialState: State): UseStoreWithState<State>;
@@ -72,10 +85,15 @@ function makeStore<State, R extends Reducer<State>>(
       : (action: ReducerAction<State, R>): void =>
           setState(reducer(storeState, action));
 
-  return (): [State, typeof setStateExternal] => {
+  return <J extends JustStateOrSetter = undefined>(just?: J): any => {
     const [state, setter] = useState(storeState);
 
     useEffect(() => {
+      // avoid rerendering of components that do not consume state
+      if (just === 'justSetter') {
+        return;
+      }
+
       // keep track of new state consumers when component did mount
       if (setters.indexOf(setter) === -1) {
         setters.push(setter);
@@ -87,9 +105,13 @@ function makeStore<State, R extends Reducer<State>>(
         const setterIdx = setters.indexOf(setter);
         setters.splice(setterIdx, 1);
       };
-    }, [setter]); // variables that could cause a rerender
+    }, [setter, just]); // variables that could cause a rerender
 
-    return [state, setStateExternal];
+    return just === 'justState'
+      ? state
+      : just === 'justSetter'
+      ? setStateExternal
+      : [state, setStateExternal];
   };
 }
 
