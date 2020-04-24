@@ -18,40 +18,79 @@ npm install --save react-hooksack
 [![Edit 487k2wzpq4](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/487k2wzpq4)
 
 ```tsx
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
 
-// make a new store and set it's initial value
+// util for counting rerenders
+import { LogTable, useLogStore } from './logRender';
+
+// make a new store and set it's initial value (to 0)
 const useClickStore = makeStore(0);
 
-// a simple component to view the store's state
-function ClickView() {
-  // as React's useState hook, our store also returns an Array of [state, setter]
-  const [clicks] = useClickStore();
+// a component that subscribes to the current state of "clicks"
+// und uses the setter "setClicks"
+const ViewAndUpdate = () => {
+  // by consuming the state "clicks" this component will rerender
+  // every time, "clicks" gets updated
+  const [clicks, setClicks] = useClickStore();
+
+  // just to count rerenderings
+  useLogStore('justSetter')('ViewAndUpdate');
+
   return (
-    <div>
+    <button
+      title="ViewAndUpdate"
+      onClick={() => setClicks(currentClicks => currentClicks + 1)}
+    >
+      add click (currently {clicks})
+    </button>
+  );
+};
+
+// a simple component to view the store's state
+const ViewOnly = () => {
+  // just subsribing to the state of "clicks" - no setter required here
+  // this component will rerender with every update of "clicks" too
+  const clicks = useClickStore('justState');
+
+  // just to count rerenderings
+  useLogStore('justSetter')('ViewOnly');
+
+  return (
+    <div title="ViewOnly">
       <span>clicks: {clicks}</span>
     </div>
   );
-}
+};
 
-// another component to set a new state
-function ClickButton() {
-  const [clicks, setClicks] = useClickStore();
-  return <button onClick={() => setClicks(clicks + 1)}>add click</button>;
-}
+// a component that will only set the new state for "clicks"
+const UpdateOnly = () => {
+  // by just using the setter for "clicks" this component will not
+  // rerender every time "clicks" updates
+  const setClicks = useClickStore('justSetter');
 
-function App() {
+  // just to count rerenderings
+  useLogStore('justSetter')('UpdateOnly');
+
+  return (
+    <button title="UpdateOnly" onClick={() => setClicks(clicks => clicks + 1)}>
+      add click
+    </button>
+  );
+};
+
+const App = () => {
   return (
     <div>
-      <ClickView />
-      <ClickView />
-      <ClickButton />
-      <ClickButton />
+      <ViewOnly />
+      <ViewAndUpdate />
+      <UpdateOnly />
+      <hr />
+      <LogTable />
     </div>
   );
-}
+};
 
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
