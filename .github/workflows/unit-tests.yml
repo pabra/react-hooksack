@@ -45,3 +45,12 @@ jobs:
 
       - name: build
         run: npm run build
+
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.6.0
+        if: matrix.runs-on == 'ubuntu-latest'
+        env:
+          CC_TEST_REPORTER_ID: 42e3a64ee207907b6046792e75806574459a65fe54ddcd734ba2bbc1f777700e
+        with:
+          coverageCommand: npm run test:coverage
+          debug: true
