@@ -9,15 +9,58 @@ A lightweight, fully typed store for react, based entirely on hooks.
 
 ```bash
 npm install --save react-hooksack
+# or
+yarn add react-hooksack
 ```
 
 ## Usage
 
-### simple usage
+### Import
+
+```typescript
+import makeStore from 'react-hooksack';
+```
+
+### initialize new store (hook)
+
+```typescript
+const useStore = makeStore(initialValue, reducer);
+```
+
+| object         | required | type                                             | description                                                                                                                                                                                              |
+| -------------- | :------: | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `initialValue` |   yes    | `State`                                          | Whatever you pass as initial value becomes the store\`s state type (we will refer as`State`).`makeStore`is type generic, so you could set more complex types like this:`makeStore<null \| number>(null)` |
+| `reducer`      |    no    | `(state: State, action: ReducerAction) => State` | If passed, `setState` will only accept `ReducerAction` later.                                                                                                                                            |
+
+### use within components
+
+```typescript
+// get state and setter
+const [state, setState] = useStore();
+
+// or just get state
+const state = useStore('justState');
+
+// or just get setter (this one avoid re-renders)
+const setState = useStore('justSetter');
+```
+
+| object                  | type                                                                             | required | description                                                                                                                                                                                                                                                 |
+| ----------------------- | -------------------------------------------------------------------------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useStore`              | `(just?: 'justState' \| 'justSetter') => [State, setState] \| State \| setState` |          | Without arguments, `useStore` behaves like `useState` of React (except for the initial value). Otherwise you get what you asked for (see below).                                                                                                            |
+| `state`                 | `State`                                                                          |          | Will be of the type you set as `initialValue` on `makeStore`. Every component that consumes `state` will re-render whenever `state` changes.                                                                                                                |
+| `setState` (no reducer) | `(argument: State \| (currentState: State) => State) => void`                    |          | Hooksack is using React\`s `useState` hook under the hood. Thus, you can just pass the new state of type `State` or pass a function that gets the current state and has to return the new state.                                                            |
+| `setState` (reducer)    | `(action: ReducerAction) => void`                                                |          | If `makeStore` was initialized with a reducer, `setState` expects that reducer\`s `ReducerAction` as argument.                                                                                                                                              |
+| `just`                  | `'justState'`                                                                    |    no    | `useStore` will just return the current state of type `State`.                                                                                                                                                                                              |
+| `just`                  | `'justSetter'`                                                                   |    no    | `useStore` will just return the state setter `setState` depending on if you passed a reducer to `makeStore` or not (see above). Components that just get the state setter through literal `'justSetter'` will not get re-rendered whenever `state` changes. |
+
+## Example
+
+### use without reducer
 
 [![Edit 487k2wzpq4](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/487k2wzpq4)
 
-```tsx
+```typescript.tsx
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
@@ -95,91 +138,38 @@ const App = () => {
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-### use with state setting function
-
-[![Edit 3850mwqzqq](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3850mwqzqq)
-
-```tsx
-import React from 'react';
-import ReactDOM from 'react-dom';
-import makeStore from 'react-hooksack';
-
-// make a new store and set it's initial value
-const useClickStore = makeStore(0);
-
-// a simple component to view the store's state
-function ClickView() {
-  // as React's useState hook, our store also returns an Array of [state, setter]
-  const [clicks] = useClickStore();
-  return (
-    <div>
-      <span>clicks: {clicks}</span>
-    </div>
-  );
-}
-
-function computeClick(clicks: number) {
-  // heavy computation here
-  const newClicks = clicks + 1;
-
-  return newClicks;
-}
-
-// another component to set a new state
-function ClickButton() {
-  const [, setClicks] = useClickStore();
-  return <button onClick={() => setClicks(computeClick)}>add click</button>;
-}
-
-function App() {
-  return (
-    <div>
-      <ClickView />
-      <ClickView />
-      <ClickButton />
-      <ClickButton />
-    </div>
-  );
-}
-
-ReactDOM.render(<App />, document.getElementById('root'));
-```
-
 ### use with reducer
 
 [![Edit rmj4vyyn04](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/rmj4vyyn04)
 
-```tsx
+```typescript.tsx
 import React, { useRef, FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
 
 // shape a ToDo
-interface ITodo {
+interface Todo {
   name: string;
   done: boolean;
 }
 
 // define the ToDo store reducer
 const reducer = (
-  state: ITodo[],
-  action: { type: 'add' | 'del' | 'toggle'; todo: ITodo },
+  state: Todo[],
+  action: { type: 'add' | 'del' | 'toggle'; todo: Todo },
 ) => {
   switch (action.type) {
     case 'add':
-      const newAddState = state.slice();
-      newAddState.push(action.todo);
-      return newAddState;
+      // ensure to always return a new object
+      return [...state, action.todo];
     case 'del':
+      // ensure to always return a new object
       return state.filter(todo => todo !== action.todo);
     case 'toggle':
-      const newToggleState = state.slice();
-      newToggleState.forEach(todo => {
-        if (todo === action.todo) {
-          todo.done = !todo.done;
-        }
-      });
-      return newToggleState;
+      // ensure to always return a new object
+      return state.map(todo =>
+        todo === action.todo ? { ...todo, done: !todo.done } : todo,
+      );
     default:
       throw new Error();
   }
@@ -192,17 +182,17 @@ const useTodoStore = makeStore(
     { name: 'feed the cat', done: false },
     { name: 'walk the dog', done: true },
     { name: "order a table at Luigi's", done: true },
-  ] as ITodo[],
+  ] as Todo[],
   reducer,
 );
 
 interface ITodoProps {
-  todo: ITodo;
+  todo: Todo;
 }
 
 // component to render and toggle a Todo
 const Todo: FunctionComponent<ITodoProps> = props => {
-  const [, setTodos] = useTodoStore();
+  const setTodos = useTodoStore('justSetter');
   const style = {
     textDecoration: props.todo.done ? 'line-through' : undefined,
   };
@@ -222,12 +212,12 @@ const Todo: FunctionComponent<ITodoProps> = props => {
   );
 };
 
-interface ITodoListProps {
-  todos: ITodo[];
+interface TodoListProps {
+  todos: Todo[];
 }
 
 // component to render a list of Todos
-const TodoList: FunctionComponent<ITodoListProps> = props => {
+const TodoList: FunctionComponent<TodoListProps> = props => {
   return (
     <ul>
       {props.todos.map((todo, i) => (
@@ -239,7 +229,7 @@ const TodoList: FunctionComponent<ITodoListProps> = props => {
 
 // component to tell appart already done Todos from to be tone ones
 function AllTodos() {
-  const [todos] = useTodoStore();
+  const todos = useTodoStore('justState');
   const toBeDone = todos.filter(todo => todo.done === false);
   const done = todos.filter(todo => todo.done);
 
@@ -263,7 +253,7 @@ function AllTodos() {
 
 // component to add a new, undone todo
 function AddTodo() {
-  const [, setTodos] = useTodoStore();
+  const setTodos = useTodoStore('justSetter');
   const todoInput = useRef<HTMLInputElement>(null);
   const addTodo = () => {
     if (todoInput && todoInput.current) {
@@ -297,6 +287,8 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ```bash
 npm run test
+# or
+npm run test:coverage
 ```
 
 ## Why
