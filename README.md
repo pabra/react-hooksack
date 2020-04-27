@@ -126,21 +126,15 @@ const UpdateOnly = () => {
   );
 };
 
-const App = () => {
-  // just to count rerenderings
-  const logRender = useLogStore('justSetter');
-  React.useEffect(() => logRender('App'));
-
-  return (
-    <div>
-      <ViewOnly />
-      <ViewAndUpdate />
-      <UpdateOnly />
-      <hr />
-      <LogTable />
-    </div>
-  );
-};
+const App = () => (
+  <div>
+    <ViewOnly />
+    <ViewAndUpdate />
+    <UpdateOnly />
+    <hr />
+    <LogTable />
+  </div>
+);
 
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
