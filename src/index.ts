@@ -1,4 +1,4 @@
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, useLayoutEffect, useState } from 'react';
 import { unstable_batchedUpdates as batch } from 'react-dom';
 
 type ReducerAction<State, Reducer> = Reducer extends (
@@ -88,7 +88,7 @@ function makeStore<State, R extends Reducer<State>>(
   return <J extends JustStateOrSetter = undefined>(just?: J): any => {
     const [state, setter] = useState(storeState);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       // avoid rerendering of components that do not consume state
       if (just === 'justSetter') {
         return;

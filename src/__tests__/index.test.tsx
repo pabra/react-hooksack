@@ -617,11 +617,11 @@ test('update same state multiple times', async () => {
 
   expect(getByTestId('inc-c').textContent).toBe('inc 10');
   expect(getByTestId('view-1').textContent).toBe('a: 1, b: 6, c: 11');
-  expect(getByTestId('view-2').textContent).toBe('a: 1, b: 1, c: 1');
+  expect(getByTestId('view-2').textContent).toBe('a: 1, b: 6, c: 11');
   expect(indicateRenderA).toHaveBeenCalledTimes(1);
   expect(indicateRenderB).toHaveBeenCalledTimes(2);
   expect(indicateRenderC).toHaveBeenCalledTimes(2);
-  expect(indicateRenderView).toHaveBeenCalledTimes(3);
+  expect(indicateRenderView).toHaveBeenCalledTimes(4);
   expect(indicateEffectB).toHaveBeenCalledTimes(1);
   expect(indicateEffectC).toHaveBeenCalledTimes(1);
 
@@ -635,7 +635,7 @@ test('update same state multiple times', async () => {
       expect(indicateRenderA).toHaveBeenCalledTimes(1);
       expect(indicateRenderB).toHaveBeenCalledTimes(4);
       expect(indicateRenderC).toHaveBeenCalledTimes(4);
-      expect(indicateRenderView).toHaveBeenCalledTimes(7);
+      expect(indicateRenderView).toHaveBeenCalledTimes(8);
       expect(indicateEffectB).toHaveBeenCalledTimes(2);
       expect(indicateEffectC).toHaveBeenCalledTimes(2);
     },
@@ -652,7 +652,7 @@ test('update same state multiple times', async () => {
       expect(indicateRenderA).toHaveBeenCalledTimes(1);
       expect(indicateRenderB).toHaveBeenCalledTimes(5);
       expect(indicateRenderC).toHaveBeenCalledTimes(6);
-      expect(indicateRenderView).toHaveBeenCalledTimes(9);
+      expect(indicateRenderView).toHaveBeenCalledTimes(10);
       expect(indicateEffectB).toHaveBeenCalledTimes(2);
       expect(indicateEffectC).toHaveBeenCalledTimes(3);
     },
