@@ -79,7 +79,8 @@ const ViewAndUpdate = () => {
   const [clicks, setClicks] = useClickStore();
 
   // just to count rerenderings
-  useLogStore('justSetter')('ViewAndUpdate');
+  const logRender = useLogStore('justSetter');
+  React.useEffect(() => logRender('ViewAndUpdate'));
 
   return (
     <button
@@ -98,7 +99,8 @@ const ViewOnly = () => {
   const clicks = useClickStore('justState');
 
   // just to count rerenderings
-  useLogStore('justSetter')('ViewOnly');
+  const logRender = useLogStore('justSetter');
+  React.useEffect(() => logRender('ViewOnly'));
 
   return (
     <div title="ViewOnly">
@@ -114,7 +116,8 @@ const UpdateOnly = () => {
   const setClicks = useClickStore('justSetter');
 
   // just to count rerenderings
-  useLogStore('justSetter')('UpdateOnly');
+  const logRender = useLogStore('justSetter');
+  React.useEffect(() => logRender('UpdateOnly'));
 
   return (
     <button title="UpdateOnly" onClick={() => setClicks(clicks => clicks + 1)}>
@@ -124,6 +127,10 @@ const UpdateOnly = () => {
 };
 
 const App = () => {
+  // just to count rerenderings
+  const logRender = useLogStore('justSetter');
+  React.useEffect(() => logRender('App'));
+
   return (
     <div>
       <ViewOnly />
@@ -143,12 +150,13 @@ ReactDOM.render(<App />, document.getElementById('root'));
 [![Edit rmj4vyyn04](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/rmj4vyyn04)
 
 ```typescript.tsx
-import React, { useRef, FunctionComponent } from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
 
 // shape a ToDo
 interface Todo {
+  id: number;
   name: string;
   done: boolean;
 }
@@ -162,14 +170,17 @@ const reducer = (
     case 'add':
       // ensure to always return a new object
       return [...state, action.todo];
+
     case 'del':
       // ensure to always return a new object
       return state.filter(todo => todo !== action.todo);
+
     case 'toggle':
       // ensure to always return a new object
       return state.map(todo =>
         todo === action.todo ? { ...todo, done: !todo.done } : todo,
       );
+
     default:
       throw new Error();
   }
@@ -178,57 +189,43 @@ const reducer = (
 // make a new store, set it's initial value and pass reducer
 const useTodoStore = makeStore(
   [
-    { name: 'remember the milk', done: false },
-    { name: 'feed the cat', done: false },
-    { name: 'walk the dog', done: true },
-    { name: "order a table at Luigi's", done: true },
-  ] as Todo[],
+    { id: 1, done: false, name: 'remember the milk' },
+    { id: 2, done: false, name: 'feed the cat' },
+    { id: 3, done: true, name: 'walk the dog' },
+    { id: 4, done: true, name: "order a table at Luigi's" },
+  ],
   reducer,
 );
 
-interface ITodoProps {
-  todo: Todo;
-}
-
 // component to render and toggle a Todo
-const Todo: FunctionComponent<ITodoProps> = props => {
+const Todo: React.FC<{ todo: Todo }> = ({ todo }) => {
   const setTodos = useTodoStore('justSetter');
   const style = {
-    textDecoration: props.todo.done ? 'line-through' : undefined,
+    textDecoration: todo.done ? 'line-through' : undefined,
   };
   const handleChange = () => {
-    setTodos({ type: 'toggle', todo: props.todo });
+    setTodos({ type: 'toggle', todo });
   };
 
   return (
     <li>
-      <input
-        type="checkbox"
-        checked={props.todo.done}
-        onChange={handleChange}
-      />
-      <span style={style}>{props.todo.name}</span>
+      <input type="checkbox" checked={todo.done} onChange={handleChange} />
+      <span style={style}>{todo.name}</span>
     </li>
   );
 };
 
-interface TodoListProps {
-  todos: Todo[];
-}
-
 // component to render a list of Todos
-const TodoList: FunctionComponent<TodoListProps> = props => {
-  return (
-    <ul>
-      {props.todos.map((todo, i) => (
-        <Todo key={i} todo={todo} />
-      ))}
-    </ul>
-  );
-};
+const TodoList: React.FC<{ todos: Todo[] }> = ({ todos }) => (
+  <ul>
+    {todos.map(todo => (
+      <Todo key={todo.id} todo={todo} />
+    ))}
+  </ul>
+);
 
 // component to tell appart already done Todos from to be tone ones
-function AllTodos() {
+const AllTodos = () => {
   const todos = useTodoStore('justState');
   const toBeDone = todos.filter(todo => todo.done === false);
   const done = todos.filter(todo => todo.done);
@@ -249,16 +246,19 @@ function AllTodos() {
       )}
     </div>
   );
-}
+};
 
 // component to add a new, undone todo
-function AddTodo() {
-  const setTodos = useTodoStore('justSetter');
-  const todoInput = useRef<HTMLInputElement>(null);
+const AddTodo = () => {
+  const dispatchTodos = useTodoStore('justSetter');
+  const todoInput = React.useRef<HTMLInputElement>(null);
   const addTodo = () => {
     if (todoInput && todoInput.current) {
       const name = todoInput.current.value;
-      setTodos({ type: 'add', todo: { name, done: false } });
+      dispatchTodos({
+        type: 'add',
+        todo: { name, done: false, id: Date.now() },
+      });
       todoInput.current.value = '';
     }
   };
@@ -269,16 +269,14 @@ function AddTodo() {
       <button onClick={addTodo}>add</button>
     </div>
   );
-}
+};
 
-function App() {
-  return (
-    <div>
-      <AllTodos />
-      <AddTodo />
-    </div>
-  );
-}
+const App = () => (
+  <div>
+    <AllTodos />
+    <AddTodo />
+  </div>
+);
 
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
