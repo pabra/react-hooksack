@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 
@@ -533,6 +533,128 @@ test('avoid unnecessary re-rendering with just setters and state consumers', asy
       expect(indicateButton1Effect).toHaveBeenCalledTimes(1);
       expect(indicateButton2Render).toHaveBeenCalledTimes(1);
       expect(indicateButton2Effect).toHaveBeenCalledTimes(1);
+    },
+    { container, timeout },
+  );
+});
+
+test('update same state multiple times', async () => {
+  const useStore = makeStore({ a: 1, b: 1, c: 1 });
+  const indicateRenderA = jest.fn();
+  const indicateRenderB = jest.fn();
+  const indicateRenderC = jest.fn();
+  const indicateRenderView = jest.fn();
+  const indicateEffectB = jest.fn();
+  const indicateEffectC = jest.fn();
+
+  const IncA: React.FC = () => {
+    const setState = useStore('justSetter');
+    indicateRenderA();
+
+    return (
+      <button
+        data-testid="inc-a"
+        onClick={(): void => setState(s => ({ ...s, a: s.a + 1 }))}
+      >
+        inc a
+      </button>
+    );
+  };
+
+  const IncB: React.FC = () => {
+    const [{ a: stateA }, setState] = useStore();
+    indicateRenderB();
+
+    useEffect(() => {
+      indicateEffectB();
+      setState(s => ({ ...s, b: stateA + 5 }));
+    }, [setState, stateA]);
+
+    return null;
+  };
+
+  const IncC: React.FC = () => {
+    const [{ a: stateA }, setState] = useStore();
+    const [localState, setLocalState] = useState(10);
+    indicateRenderC();
+
+    useEffect(() => {
+      indicateEffectC();
+      setState(s => ({ ...s, c: stateA + localState }));
+    }, [setState, stateA, localState]);
+
+    return (
+      <button
+        data-testid="inc-c"
+        onClick={(): void => setLocalState(s => s + 1)}
+      >
+        inc {localState}
+      </button>
+    );
+  };
+
+  const View: React.FC<{ id: number }> = ({ id }) => {
+    const { a, b, c } = useStore('justState');
+    indicateRenderView();
+
+    return (
+      <span data-testid={`view-${id}`}>
+        a: {a}, b: {b}, c: {c}
+      </span>
+    );
+  };
+
+  const timeout = 500;
+  const { container, getByTestId } = render(
+    <div>
+      <View id={1} />
+      <IncA />
+      <IncB />
+      <IncC />
+      <View id={2} />
+    </div>,
+  );
+
+  expect(getByTestId('inc-c').textContent).toBe('inc 10');
+  expect(getByTestId('view-1').textContent).toBe('a: 1, b: 6, c: 11');
+  expect(getByTestId('view-2').textContent).toBe('a: 1, b: 1, c: 1');
+  expect(indicateRenderA).toHaveBeenCalledTimes(1);
+  expect(indicateRenderB).toHaveBeenCalledTimes(2);
+  expect(indicateRenderC).toHaveBeenCalledTimes(2);
+  expect(indicateRenderView).toHaveBeenCalledTimes(3);
+  expect(indicateEffectB).toHaveBeenCalledTimes(1);
+  expect(indicateEffectC).toHaveBeenCalledTimes(1);
+
+  fireEvent.click(getByTestId('inc-a'));
+
+  await waitFor(
+    () => {
+      expect(getByTestId('inc-c').textContent).toBe('inc 10');
+      expect(getByTestId('view-1').textContent).toBe('a: 2, b: 7, c: 12');
+      expect(getByTestId('view-2').textContent).toBe('a: 2, b: 7, c: 12');
+      expect(indicateRenderA).toHaveBeenCalledTimes(1);
+      expect(indicateRenderB).toHaveBeenCalledTimes(4);
+      expect(indicateRenderC).toHaveBeenCalledTimes(4);
+      expect(indicateRenderView).toHaveBeenCalledTimes(7);
+      expect(indicateEffectB).toHaveBeenCalledTimes(2);
+      expect(indicateEffectC).toHaveBeenCalledTimes(2);
+    },
+    { container, timeout },
+  );
+
+  fireEvent.click(getByTestId('inc-c'));
+
+  await waitFor(
+    () => {
+      expect(getByTestId('inc-c').textContent).toBe('inc 11');
+      expect(getByTestId('view-1').textContent).toBe('a: 2, b: 7, c: 13');
+      expect(getByTestId('view-2').textContent).toBe('a: 2, b: 7, c: 13');
+      expect(indicateRenderA).toHaveBeenCalledTimes(1);
+      expect(indicateRenderB).toHaveBeenCalledTimes(5);
+      expect(indicateRenderC).toHaveBeenCalledTimes(6);
+      expect(indicateRenderView).toHaveBeenCalledTimes(9);
+      expect(indicateEffectB).toHaveBeenCalledTimes(2);
+      expect(indicateEffectC).toHaveBeenCalledTimes(3);
     },
     { container, timeout },
   );
