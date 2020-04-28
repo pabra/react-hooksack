@@ -1,6 +1,6 @@
 {
   "name": "react-hooksack",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A lightweight, fully typed store for react, based entirely on hooks.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
