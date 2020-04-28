@@ -51,9 +51,15 @@ test('should work with multiple components', () => {
   // now component 2 sets new state by passing a function
   act(() => result2.current[1](computeNewState));
 
-  // booth components should now get 2
+  // a new component subscribes to the state too
+  const { result: result3, unmount: unmount3 } = renderHook(() =>
+    useStore('justState'),
+  );
+
+  // state in all 3 components should be 2
   expect(result1.current[0]).toBe(2);
   expect(result2.current[0]).toBe(2);
+  expect(result3.current).toBe(2);
 
   //
   // // should fail because of types
@@ -63,6 +69,7 @@ test('should work with multiple components', () => {
 
   unmount1();
   unmount2();
+  unmount3();
 });
 
 test('should work with reducer', () => {
