@@ -1,3 +1,4 @@
 exclude_patterns:
-  - 'src/__tests__/'
-  - '.*.js'
+  - './'
+  - '!./src/'
+  - './src/__tests__/'
