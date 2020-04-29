@@ -41,6 +41,8 @@
     "react",
     "hooks",
     "store",
+    "state",
+    "state management",
     "lightweight",
     "typescript"
   ],
