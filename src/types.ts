@@ -12,9 +12,9 @@ type ReducerWithActionType<State, R extends Reducer<State>> = (
   action: ReducerAction<State, R>,
 ) => State;
 
-type SetStateWithState<State> = (
-  arg: State | ((oldState: State) => State),
-) => void;
+type StateSetter<State> = State | ((oldState: State) => State);
+
+type SetStateWithState<State> = (arg: StateSetter<State>) => void;
 
 type SetStateWithReducer<State, R extends Reducer<State>> = (
   action: ReducerAction<State, R>,
@@ -46,6 +46,7 @@ export type {
   ReducerAction,
   ReducerWithActionType,
   SetStateWithState,
+  StateSetter,
   UseStoreWithReducer,
   UseStoreWithState,
 };

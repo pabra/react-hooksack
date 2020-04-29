@@ -6,14 +6,15 @@ import {
   ReducerAction,
   ReducerWithActionType,
   SetStateWithState,
+  StateSetter,
   UseStoreWithReducer,
   UseStoreWithState,
 } from './types';
 
-// first overload if only initial state is passed
+// first overload: without reducer
 function makeStore<State>(initialState: State): UseStoreWithState<State>;
 
-// second overload with passed reducer
+// second overload: with reducer
 function makeStore<State, R extends Reducer<State>>(
   initialState: State,
   reducer: R & ReducerWithActionType<State, R>,
@@ -25,7 +26,7 @@ function makeStore<State, R extends Reducer<State>>(
   reducer?: R & ReducerWithActionType<State, R>,
 ): UseStoreWithState<State> | UseStoreWithReducer<State, R> {
   // keep references to all setters
-  const setters: SetStateWithState<State>[] = [];
+  const setters = new Set<SetStateWithState<State>>();
   let storeState: State = initialState;
 
   // set new state and notify all state consumers about it
@@ -37,17 +38,13 @@ function makeStore<State, R extends Reducer<State>>(
 
     storeState = newState;
     batch(() => {
-      const settersLength = setters.length;
-
-      for (let i = 0; i < settersLength; i++) {
-        setters[i](newState);
-      }
+      setters.forEach(s => s(newState));
     });
   };
 
-  const setStateExternal =
+  const publicStateSetter =
     reducer === undefined
-      ? (arg: State | ((oldState: State) => State)): void =>
+      ? (arg: StateSetter<State>): void =>
           setState(arg instanceof Function ? arg(storeState) : arg)
       : (action: ReducerAction<State, R>): void =>
           setState(reducer(storeState, action));
@@ -62,23 +59,20 @@ function makeStore<State, R extends Reducer<State>>(
       }
 
       // keep track of new state consumers when component did mount
-      if (setters.indexOf(setter) === -1) {
-        setters.push(setter);
-      }
+      setters.add(setter);
 
       // returned function will run when component will unmount
       return (): void => {
         // remove setter from store
-        const setterIdx = setters.indexOf(setter);
-        setters.splice(setterIdx, 1);
+        setters.delete(setter);
       };
     }, [setter, just]); // variables that could cause a rerender
 
     return just === 'justState'
       ? state
       : just === 'justSetter'
-      ? setStateExternal
-      : [state, setStateExternal];
+      ? publicStateSetter
+      : [state, publicStateSetter];
   };
 }
 
