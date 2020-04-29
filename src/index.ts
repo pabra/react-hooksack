@@ -1,47 +1,14 @@
-import { Dispatch, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { unstable_batchedUpdates as batch } from 'react-dom';
-
-type ReducerAction<State, Reducer> = Reducer extends (
-  state: State,
-  action: infer T,
-) => State
-  ? T
-  : never;
-
-type Reducer<State> = (state: State, action: any) => State;
-
-type ReducerWithActionType<State, R extends Reducer<State>> = (
-  state: State,
-  action: ReducerAction<State, R>,
-) => State;
-
-type SetStateWithState<State> = (
-  arg: State | ((oldState: State) => State),
-) => void;
-
-type SetStateWithReducer<State, R extends Reducer<State>> = (
-  action: ReducerAction<State, R>,
-) => void;
-
-type JustStateOrSetter = 'justState' | 'justSetter' | undefined;
-
-type UseStoreWithState<State> = <J extends JustStateOrSetter = undefined>(
-  just?: J,
-) => J extends 'justState'
-  ? State
-  : J extends 'justSetter'
-  ? SetStateWithState<State>
-  : [State, SetStateWithState<State>];
-
-type UseStoreWithReducer<State, R extends Reducer<State>> = <
-  J extends JustStateOrSetter = undefined
->(
-  just?: J,
-) => J extends 'justState'
-  ? State
-  : J extends 'justSetter'
-  ? SetStateWithReducer<State, R>
-  : [State, SetStateWithReducer<State, R>];
+import {
+  JustStateOrSetter,
+  Reducer,
+  ReducerAction,
+  ReducerWithActionType,
+  SetStateWithState,
+  UseStoreWithReducer,
+  UseStoreWithState,
+} from './types';
 
 // first overload if only initial state is passed
 function makeStore<State>(initialState: State): UseStoreWithState<State>;
@@ -58,7 +25,7 @@ function makeStore<State, R extends Reducer<State>>(
   reducer?: R & ReducerWithActionType<State, R>,
 ): UseStoreWithState<State> | UseStoreWithReducer<State, R> {
   // keep references to all setters
-  const setters: Dispatch<State>[] = [];
+  const setters: SetStateWithState<State>[] = [];
   let storeState: State = initialState;
 
   // set new state and notify all state consumers about it
