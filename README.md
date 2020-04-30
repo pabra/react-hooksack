@@ -5,6 +5,12 @@
 
 A lightweight, fully typed store for react, based entirely on hooks.
 
+Keep re-rendering of involved components at a minimum. See this codesandbox with
+nested components. (thanks to [@andrewgreenh](https://github.com/andrewgreenh)
+for creating [#3](https://github.com/pabra/react-hooksack/issues/3))
+
+[![Edit 487k2wzpq4](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/minimum-rerender-2nvpy?file=/src/index.tsx&expanddevtools=1)
+
 ## Install
 
 ```bash
