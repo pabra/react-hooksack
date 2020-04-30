@@ -60,7 +60,7 @@ const setState = useStore('justSetter');
 
 [![Edit 487k2wzpq4](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/487k2wzpq4)
 
-```typescript.tsx
+```tsx
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
@@ -143,7 +143,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 [![Edit rmj4vyyn04](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/rmj4vyyn04)
 
-```typescript.tsx
+```tsx
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import makeStore from 'react-hooksack';
