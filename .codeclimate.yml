@@ -1,0 +1,21 @@
+exclude_patterns:
+  - 'config/'
+  - 'db/'
+  - 'dist/'
+  - 'features/'
+  - '**/node_modules/'
+  - 'script/'
+  - '**/spec/'
+  - '**/test/'
+  - '**/tests/'
+  - '**/__tests__/'
+  - 'Tests/'
+  - '**/vendor/'
+  - '**/*_test.go'
+  - '**/*.d.ts'
+  - '.*'
+plugins:
+  editorconfig:
+    enabled: true
+  eslint:
+    enabled: true
