@@ -15,8 +15,3 @@ exclude_patterns:
   - '**/*_test.go'
   - '**/*.d.ts'
   - '.*'
-plugins:
-  editorconfig:
-    enabled: true
-  eslint:
-    enabled: true
