@@ -30,6 +30,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+      - run: npm ci
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v2.6.0
         env:
