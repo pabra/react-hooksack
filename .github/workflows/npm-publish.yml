@@ -22,7 +22,7 @@ jobs:
       - run: npm run test
       - run: npm run build:check
 
-  publish code coverage:
+  publish-code-coverage:
     needs: build
     runs-on: ubuntu-latest
     steps:
