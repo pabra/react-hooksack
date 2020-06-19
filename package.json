@@ -72,7 +72,6 @@
     "react-test-renderer": "^16.13.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.1.0",
-    "tslib": "^1.13.0",
     "typescript": "^3.9.5"
   },
   "peerDependencies": {
