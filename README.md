@@ -1,5 +1,4 @@
-[![Maintainability](https://api.codeclimate.com/v1/badges/5ae9adad86505c3da9bc/maintainability)](https://codeclimate.com/github/pabra/react-hooksack/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/5ae9adad86505c3da9bc/test_coverage)](https://codeclimate.com/github/pabra/react-hooksack/test_coverage)
+[![codecov](https://codecov.io/gh/pabra/react-hooksack/branch/master/graph/badge.svg)](https://codecov.io/gh/pabra/react-hooksack)
 
 # React HookSack
 
