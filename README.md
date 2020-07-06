@@ -1,3 +1,5 @@
+[![unit-tests](https://github.com/pabra/react-hooksack/workflows/unit-tests/badge.svg?branch=master)](https://github.com/pabra/react-hooksack/actions?query=branch%3Amaster+workflow%3Aunit-tests)
+[![unit-tests](https://github.com/pabra/react-hooksack/workflows/npm-publish/badge.svg)](https://github.com/pabra/react-hooksack/actions?query=workflow%3Anpm-publish)
 [![codecov](https://codecov.io/gh/pabra/react-hooksack/branch/master/graph/badge.svg)](https://codecov.io/gh/pabra/react-hooksack)
 
 # React HookSack
