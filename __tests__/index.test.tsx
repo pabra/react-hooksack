@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React, { useEffect, useState } from 'react';
-import makeStore from '../index';
+import makeStore from '../src/index';
 
 test('should increment counter', () => {
   const useStore = makeStore(0);
