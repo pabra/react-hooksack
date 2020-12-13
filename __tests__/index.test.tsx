@@ -291,13 +291,17 @@ test('avoid unnecessary re-rendering', async () => {
   };
 
   const timeout = 500;
-  const { container, getByTestId } = render(
+  const { container: containerElement, getByTestId } = render(
     <div>
       <ClickView recurseCount={3} />
       <ClickButtonAdd />
       <ClickButtonReset />
     </div>,
   );
+
+  // https://github.com/testing-library/react-testing-library/issues/841
+  // https://github.com/testing-library/dom-testing-library/pull/834
+  const container: HTMLElement = containerElement as HTMLElement;
 
   // each element's renderer and effect should have been called once
   expect(getByTestId('render-clicks-3').textContent).toBe('clicks: 0');
@@ -447,13 +451,17 @@ test('avoid unnecessary re-rendering with just setters and state consumers', asy
   };
 
   const timeout = 500;
-  const { container, getByTestId } = render(
+  const { container: containerElement, getByTestId } = render(
     <div>
       <ClickView recurseCount={3} />
       <ClickButtonAdd />
       <ClickButtonReset />
     </div>,
   );
+
+  // https://github.com/testing-library/react-testing-library/issues/841
+  // https://github.com/testing-library/dom-testing-library/pull/834
+  const container: HTMLElement = containerElement as HTMLElement;
 
   // each element's renderer and effect should have been called once
   expect(getByTestId('render-clicks-3').textContent).toBe('clicks: 0');
@@ -611,7 +619,7 @@ test('update same state multiple times', async () => {
   };
 
   const timeout = 500;
-  const { container, getByTestId } = render(
+  const { container: containerElement, getByTestId } = render(
     <div>
       <View id={1} />
       <IncA />
@@ -620,6 +628,10 @@ test('update same state multiple times', async () => {
       <View id={2} />
     </div>,
   );
+
+  // https://github.com/testing-library/react-testing-library/issues/841
+  // https://github.com/testing-library/dom-testing-library/pull/834
+  const container: HTMLElement = containerElement as HTMLElement;
 
   expect(getByTestId('inc-c').textContent).toBe('inc 10');
   expect(getByTestId('view-1').textContent).toBe('a: 1, b: 6, c: 11');
