@@ -31,7 +31,7 @@ type UseStoreWithState<State> = <J extends JustStateOrSetter = undefined>(
   : [State, SetStateWithState<State>];
 
 type UseStoreWithReducer<State, R extends Reducer<State>> = <
-  J extends JustStateOrSetter = undefined
+  J extends JustStateOrSetter = undefined,
 >(
   just?: J,
 ) => J extends 'justState'
